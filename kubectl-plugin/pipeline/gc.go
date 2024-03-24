@@ -127,7 +127,13 @@ func (o *gcOption) cleanPipelineRunInNamespace(namespace string) (err error) {
 
 func (o *gcOption) runE(cmd *cobra.Command, args []string) error {
 	// clean pipelinerun of pipeline with days_to_keep and num_to_keep
+	log.Infof("开始运行")
+	fmt.Println("开始运行")
+	log.Infof("namesapce数量: " + strings(len(o.namespaces)))
+	fmt.Println("namesapce数量: " + strings(len(o.namespaces)))
 	for _, ns := range o.namespaces {
+		log.Infof("namespace is: " + ns)
+		fmt.Println("namespace is: " + ns)
 		unList, err := o.GetUnstructuredListInNamespace(ns, types.GetPipelineSchema())
 		if err != nil {
 			cmd.PrintErrf("failed to get Pipeline in '%s', error: %+v\n", ns, err)
@@ -136,7 +142,7 @@ func (o *gcOption) runE(cmd *cobra.Command, args []string) error {
 
 		for _, un := range unList.Items {
 			log.Infof("### found pipeline: %s in namespace: %s", un.GetName(), ns)
-			pipeline, err := toPipeline(o, un)
+			fmt.Println("found pipeline: " + un.GetName() + "in ns: " + ns)
 			if err != nil {
 				cmd.PrintErrf("parse unstructured pipeline to gcPipeline(%s) failed, err: %+v\n", un.GetName(), err)
 				continue
@@ -356,8 +362,15 @@ func toPipeline(gcOpt *gcOption, u unstructured.Unstructured) (*gcPipeline, erro
 			if pipeline.numToKeep, err = strconv.Atoi(num); err != nil {
 				return nil, err
 			}
+		} else {
+			log.Infof("获取discard失败")
+			fmt.Println("获取discard失败")
 		}
 	}
+	fmt.Println(pipeline.daysToKeep)
+	log.Infof(strconv.Itoa(pipeline.daysToKeep))
+	fmt.Println(pipeline.numToKeep)
+	log.Infof(strconv.Itoa(pipeline.numToKeep))
 	return pipeline, err
 }
 
